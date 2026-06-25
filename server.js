@@ -15,6 +15,10 @@ app.use(express.json({ limit: "120kb" }));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
+app.get("/healthz", (req, res) => {
+  res.json({ ok: true });
+});
+
 function asNumber(value) {
   const parsed = Number(String(value || "").replace(",", "."));
   return Number.isFinite(parsed) ? parsed : 0;

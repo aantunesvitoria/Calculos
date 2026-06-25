@@ -33,6 +33,28 @@ Este projeto tem duas partes:
 
 O GitHub Pages publica apenas a landing page estática por GitHub Actions. Para usar envio de briefing, geração de PDF e `/admin`, rode o servidor Node localmente ou publique em uma hospedagem que execute Node.js.
 
+## Hospedagem gratuita do servidor
+
+O projeto está pronto para Render usando `render.yaml`.
+
+1. Acesse `https://render.com/`.
+2. Entre com sua conta GitHub.
+3. Crie um novo serviço por Blueprint.
+4. Escolha o repositório `aantunesvitoria/Calculos`.
+5. Confirme o plano Free.
+
+Depois que o Render gerar a URL do serviço, edite `public/config.js` e coloque essa URL em `serverUrl`. Exemplo:
+
+```js
+window.APP_CONFIG = {
+  serverUrl: "https://seu-servico.onrender.com"
+};
+```
+
+Faça commit e push dessa alteração para que o GitHub Pages use o servidor publicado.
+
+Observação: no plano Free do Render, o serviço pode "dormir" depois de alguns minutos sem acesso e levar cerca de um minuto para acordar na próxima visita.
+
 ## WhatsApp
 
 Por padrão, `WHATSAPP_DRY_RUN=true` apenas mostra a mensagem no terminal. Para envio real, configure:

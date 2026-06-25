@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: pre-briefing-interiores
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 24.18.0
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: WHATSAPP_DRY_RUN
+        value: true
+      - key: GOOGLE_DRIVE_DRY_RUN
+        value: true
