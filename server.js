@@ -99,6 +99,35 @@ function fieldLabel(value) {
   return labels[value] || value || "não informado";
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatDateTime(value) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short"
+  }).format(value);
+}
+
+function reportDisplayName(filename) {
+  const cleaned = String(filename || "")
+    .replace(/^pre-briefing-/, "")
+    .replace(/-\d{4}-\d{2}-\d{2}t.*/i, "")
+    .replace(/\.pdf$/i, "")
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+
+  return cleaned || "Relatório de briefing";
+}
+
 function calculateReport(data) {
   const area = asNumber(data.area);
   const rooms = Math.max(1, asNumber(data.rooms));
@@ -162,7 +191,7 @@ function calculateReport(data) {
     estimatedTotal,
     urgency,
     notes,
-    profile: `Projeto ${areaLabel(area)} com prioridade em ${data.priority || "não informada"}.`
+    profile: `Projeto ${areaLabel(area)} com prioridade em ${fieldLabel(data.priority)}.`
   };
 }
 
@@ -224,35 +253,87 @@ function adminLoginPage(errorMessage = "") {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Acesso interno</title>
+        <title>Acesso privado</title>
         <style>
-          body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f6f3ec; color: #20211f; font-family: Arial, sans-serif; }
-          form { width: min(420px, calc(100% - 32px)); padding: 28px; border-radius: 8px; background: #fff; box-shadow: 0 22px 70px rgba(34, 32, 28, 0.14); }
-          h1 { margin: 0 0 8px; font-size: 1.7rem; }
-          p { margin: 0 0 20px; color: #66706a; }
-          .error { color: #a33a2d; font-weight: 700; }
-          label { display: grid; gap: 8px; margin-top: 14px; font-weight: 700; }
-          input { min-height: 46px; border: 1px solid #d9ddd6; border-radius: 6px; padding: 0 12px; font: inherit; }
-          button { width: 100%; min-height: 46px; margin-top: 18px; border: 0; border-radius: 999px; background: #47685c; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
-          a { display: inline-block; margin-top: 18px; color: #2f4f45; font-weight: 800; }
+          :root { --ink: #20211f; --muted: #66706a; --line: #d9ddd6; --paper: #f6f3ec; --accent: #47685c; --accent-strong: #2f4f45; --clay: #b47058; --gold: #c79b42; }
+          * { box-sizing: border-box; }
+          body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 28px 16px;
+            background:
+              linear-gradient(120deg, rgba(47, 79, 69, 0.88), rgba(32, 33, 31, 0.68)),
+              url("https://images.unsplash.com/photo-1600210491369-e753d80a41f3?auto=format&fit=crop&w=1600&q=82") center / cover;
+            color: var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          }
+          .login-shell {
+            width: min(920px, 100%);
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(360px, 0.62fr);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28);
+            backdrop-filter: blur(18px);
+          }
+          .login-copy {
+            min-height: 520px;
+            display: grid;
+            align-content: end;
+            padding: clamp(28px, 5vw, 54px);
+            color: #fff;
+            background:
+              linear-gradient(180deg, rgba(32, 33, 31, 0.12), rgba(32, 33, 31, 0.74)),
+              url("https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=82") center / cover;
+          }
+          .eyebrow { margin: 0 0 10px; color: var(--gold); font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
+          h1 { margin: 0; font-size: clamp(2.15rem, 5vw, 4.2rem); line-height: 1.02; letter-spacing: 0; }
+          .login-copy p { max-width: 420px; margin: 18px 0 0; color: rgba(255, 255, 255, 0.86); }
+          form { display: grid; align-content: center; padding: clamp(24px, 4vw, 42px); background: #fff; }
+          form h2 { margin: 0; font-size: clamp(1.55rem, 3vw, 2.15rem); line-height: 1.08; letter-spacing: 0; }
+          form > p { margin: 10px 0 22px; color: var(--muted); }
+          .error { margin: 0 0 18px; border-left: 4px solid #a33a2d; padding: 10px 12px; border-radius: 6px; background: #fff1ee; color: #8d2f24; font-weight: 800; }
+          label { display: grid; gap: 8px; margin-top: 14px; font-size: 0.94rem; font-weight: 800; }
+          input { min-height: 48px; border: 1px solid var(--line); border-radius: 6px; padding: 0 12px; background: #fbfbf8; color: var(--ink); font: inherit; }
+          input:focus { outline: 0; border-color: var(--gold); box-shadow: 0 0 0 4px rgba(199, 155, 66, 0.18); background: #fff; }
+          button { width: 100%; min-height: 48px; margin-top: 20px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; font: inherit; font-weight: 900; cursor: pointer; box-shadow: 0 14px 28px rgba(47, 79, 69, 0.25); }
+          button:hover { background: var(--accent-strong); }
+          a { display: inline-block; width: fit-content; margin-top: 18px; color: var(--accent-strong); font-weight: 900; text-decoration: none; }
+          @media (max-width: 820px) {
+            body { display: block; padding: 0; background: var(--paper); }
+            .login-shell { min-height: 100vh; grid-template-columns: 1fr; border: 0; border-radius: 0; box-shadow: none; }
+            .login-copy { min-height: 330px; }
+            form { min-height: auto; padding: 24px 18px 34px; }
+          }
         </style>
       </head>
       <body>
-        <form method="post" action="/admin/login">
-          <h1>Área administrativa</h1>
-          <p>Acesse os relatórios em PDF gerados pelos briefings.</p>
-          ${errorMessage ? `<p class="error">${errorMessage}</p>` : ""}
-          <label>
-            Login
-            <input name="username" type="text" autocomplete="username" autofocus>
-          </label>
-          <label>
-            Senha
-            <input name="password" type="password" autocomplete="current-password">
-          </label>
-          <button type="submit">Entrar</button>
-          <a href="/">Voltar para o site</a>
-        </form>
+        <main class="login-shell">
+          <section class="login-copy" aria-label="Acesso privado">
+            <p class="eyebrow">Acesso privado</p>
+            <h1>Relatórios de briefing</h1>
+            <p>Consulte os PDFs gerados pelo formulário e baixe cada relatório para análise interna.</p>
+          </section>
+          <form method="post" action="/admin/login">
+            <h2>Entrar na área privada</h2>
+            <p>Use suas credenciais administrativas para acessar os relatórios.</p>
+            ${errorMessage ? `<p class="error">${escapeHtml(errorMessage)}</p>` : ""}
+            <label>
+              Login
+              <input name="username" type="text" autocomplete="username" autofocus>
+            </label>
+            <label>
+              Senha
+              <input name="password" type="password" autocomplete="current-password">
+            </label>
+            <button type="submit">Entrar</button>
+            <a href="/">Voltar para o site</a>
+          </form>
+        </main>
       </body>
     </html>
   `;
@@ -298,16 +379,123 @@ function buildWhatsAppMessage(data, report, localFile) {
   return lines.join("\n");
 }
 
+function ensurePdfSpace(doc, height = 120) {
+  if (doc.y + height > doc.page.height - doc.page.margins.bottom) {
+    doc.addPage();
+  }
+}
+
+function drawPdfHeader(doc, data) {
+  doc.rect(0, 0, doc.page.width, 142).fill("#2f4f45");
+  doc.rect(0, 118, doc.page.width, 24).fill("#c79b42");
+
+  doc
+    .fillColor("#ffffff")
+    .font("Helvetica-Bold")
+    .fontSize(23)
+    .text("Relatório de pré-briefing", 48, 40, { width: 340 });
+
+  doc
+    .font("Helvetica")
+    .fontSize(9)
+    .fillColor("#dce6df")
+    .text("Interiores, obras, reformas e decoração", 48, 70);
+
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(11)
+    .fillColor("#ffffff")
+    .text(data.name || "Cliente não informado", 390, 44, { width: 150, align: "right" });
+
+  doc
+    .font("Helvetica")
+    .fontSize(8.5)
+    .fillColor("#dce6df")
+    .text(new Date().toLocaleString("pt-BR"), 390, 64, { width: 150, align: "right" });
+
+  doc.y = 170;
+}
+
+function drawMetricCard(doc, x, y, width, label, value) {
+  doc.roundedRect(x, y, width, 58, 6).fill("#f6f3ec").stroke("#d9ddd6");
+  doc.font("Helvetica").fontSize(8).fillColor("#66706a").text(label, x + 12, y + 12, { width: width - 24 });
+  doc.font("Helvetica-Bold").fontSize(12).fillColor("#20211f").text(value, x + 12, y + 30, { width: width - 24 });
+}
+
+function addPdfMetrics(doc, report) {
+  ensurePdfSpace(doc, 88);
+  const y = doc.y;
+  const width = 154;
+  const gap = 14;
+
+  drawMetricCard(doc, 48, y, width, "Serviço estimado", money(report.estimatedService));
+  drawMetricCard(doc, 48 + width + gap, y, width, "Execução estimada", money(report.estimatedExecution));
+  drawMetricCard(doc, 48 + (width + gap) * 2, y, width, "Total inicial", money(report.estimatedTotal));
+
+  doc.y = y + 76;
+}
+
 function addSection(doc, title, rows) {
-  doc.moveDown(0.8);
-  doc.font("Helvetica-Bold").fontSize(13).fillColor("#2f4f45").text(title);
-  doc.moveDown(0.35);
+  ensurePdfSpace(doc, 92);
+
+  const x = 48;
+  const width = doc.page.width - 96;
+  const startY = doc.y;
+
+  doc.font("Helvetica-Bold").fontSize(13).fillColor("#2f4f45").text(title, x, startY);
+  doc.moveDown(0.5);
 
   rows.forEach(([label, value]) => {
-    doc.font("Helvetica-Bold").fontSize(10).fillColor("#20211f").text(`${label}: `, {
+    ensurePdfSpace(doc, 30);
+    doc.font("Helvetica-Bold").fontSize(9.5).fillColor("#20211f").text(`${label}: `, {
       continued: true
     });
-    doc.font("Helvetica").fontSize(10).fillColor("#3d4240").text(String(value || "não informado"));
+    doc.font("Helvetica").fontSize(9.5).fillColor("#3d4240").text(String(value || "não informado"), {
+      width: width - 20
+    });
+    doc.moveDown(0.28);
+  });
+
+  const endY = doc.y + 10;
+  doc
+    .roundedRect(x - 10, startY - 10, width + 20, Math.max(58, endY - startY + 10), 6)
+    .lineWidth(0.7)
+    .stroke("#d9ddd6");
+  doc.y = endY + 8;
+}
+
+function addPdfNotes(doc, notes) {
+  ensurePdfSpace(doc, 90);
+  const startY = doc.y;
+  const x = 48;
+  const width = doc.page.width - 96;
+
+  doc.font("Helvetica-Bold").fontSize(13).fillColor("#2f4f45").text("Feedback interno", x, startY);
+  doc.moveDown(0.5);
+
+  notes.forEach((note) => {
+    ensurePdfSpace(doc, 26);
+    doc.font("Helvetica").fontSize(9.5).fillColor("#3d4240").text(`- ${note}`, {
+      width: width - 20
+    });
+    doc.moveDown(0.2);
+  });
+
+  const endY = doc.y + 10;
+  doc.roundedRect(x - 10, startY - 10, width + 20, Math.max(58, endY - startY + 10), 6).stroke("#d9ddd6");
+  doc.y = endY + 8;
+}
+
+function addPdfFooter(doc) {
+  const bottom = doc.page.height - 34;
+  doc
+    .moveTo(48, bottom - 8)
+    .lineTo(doc.page.width - 48, bottom - 8)
+    .lineWidth(0.6)
+    .stroke("#d9ddd6");
+  doc.font("Helvetica").fontSize(8).fillColor("#66706a").text("Documento interno gerado automaticamente pelo pré-briefing.", 48, bottom, {
+    width: doc.page.width - 96,
+    align: "center"
   });
 }
 
@@ -327,10 +515,8 @@ function generateReportPdf(data, report) {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    doc.rect(0, 0, doc.page.width, 120).fill("#2f4f45");
-    doc.fillColor("#ffffff").font("Helvetica-Bold").fontSize(22).text("Relatório de pré-briefing", 48, 42);
-    doc.font("Helvetica").fontSize(10).text(new Date().toLocaleString("pt-BR"), 48, 72);
-    doc.moveDown(4);
+    drawPdfHeader(doc, data);
+    addPdfMetrics(doc, report);
 
     addSection(doc, "Cliente", [
       ["Nome", data.name],
@@ -351,7 +537,7 @@ function generateReportPdf(data, report) {
       ["Prioridade", fieldLabel(data.priority)]
     ]);
 
-    addSection(doc, "Cálculos internos", [
+    addSection(doc, "Análise financeira", [
       ["Estimativa de serviço", money(report.estimatedService)],
       ["Estimativa de execução/obra/decor", money(report.estimatedExecution)],
       ["Estimativa total inicial", money(report.estimatedTotal)],
@@ -359,17 +545,13 @@ function generateReportPdf(data, report) {
       ["Perfil", report.profile]
     ]);
 
-    doc.moveDown(0.8);
-    doc.font("Helvetica-Bold").fontSize(13).fillColor("#2f4f45").text("Feedback interno");
-    doc.moveDown(0.35);
-    report.notes.forEach((note) => {
-      doc.font("Helvetica").fontSize(10).fillColor("#3d4240").text(`• ${note}`);
-    });
+    addPdfNotes(doc, report.notes);
 
     addSection(doc, "Desejos e observações do cliente", [
       ["Descrição", data.description || "não informado"]
     ]);
 
+    addPdfFooter(doc);
     doc.end();
   });
 }
@@ -538,14 +720,20 @@ app.get("/admin", async (req, res) => {
     ? reports
         .map((report) => `
           <tr>
-            <td>${report.name}</td>
-            <td>${report.createdAt.toLocaleString("pt-BR")}</td>
-            <td>${Math.max(1, Math.round(report.size / 1024))} KB</td>
-            <td><a href="/admin/reports/${encodeURIComponent(report.name)}">Baixar PDF</a></td>
+            <td data-label="Arquivo">
+              <span class="report-title">${escapeHtml(reportDisplayName(report.name))}</span>
+              <span class="filename">${escapeHtml(report.name)}</span>
+            </td>
+            <td data-label="Data">${formatDateTime(report.createdAt)}</td>
+            <td data-label="Tamanho">${Math.max(1, Math.round(report.size / 1024))} KB</td>
+            <td data-label="Ação"><a class="download-link" href="/admin/reports/${encodeURIComponent(report.name)}">Baixar PDF</a></td>
           </tr>
         `)
         .join("")
-    : `<tr><td colspan="4">Nenhum relatório gerado ainda.</td></tr>`;
+    : `<tr><td colspan="4"><span class="empty-state">Nenhum relatório gerado ainda.</span></td></tr>`;
+
+  const totalSizeKb = reports.reduce((total, report) => total + Math.max(1, Math.round(report.size / 1024)), 0);
+  const latestReport = reports[0]?.createdAt ? formatDateTime(reports[0].createdAt) : "Ainda não há relatórios";
 
   return res.type("html").send(`
     <!doctype html>
@@ -555,22 +743,115 @@ app.get("/admin", async (req, res) => {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Relatórios internos</title>
         <style>
-          body { margin: 0; background: #f6f3ec; color: #20211f; font-family: Arial, sans-serif; }
-          main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0; }
-          h1 { margin: 0 0 8px; font-size: clamp(2rem, 5vw, 3.8rem); letter-spacing: 0; line-height: 1.02; }
-          p { margin: 0 0 24px; color: #66706a; }
-          table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 8px; background: #fff; box-shadow: 0 22px 70px rgba(34, 32, 28, 0.10); }
-          th, td { padding: 14px; border-bottom: 1px solid #d9ddd6; text-align: left; font-size: 0.94rem; }
-          th { background: #2f4f45; color: #fff; }
-          .topbar { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
-          a { color: #2f4f45; font-weight: 800; }
-          .logout { min-height: 40px; border: 0; border-radius: 999px; padding: 0 18px; background: #20211f; color: #fff; font-weight: 800; cursor: pointer; }
+          :root { --ink: #20211f; --muted: #66706a; --line: #d9ddd6; --paper: #f6f3ec; --panel: #fff; --accent: #47685c; --accent-strong: #2f4f45; --clay: #b47058; --gold: #c79b42; }
+          * { box-sizing: border-box; }
+          body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+              linear-gradient(180deg, rgba(47, 79, 69, 0.12), rgba(246, 243, 236, 0) 330px),
+              var(--paper);
+            color: var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          }
+          main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 36px 0 58px; }
+          .topbar {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 24px;
+          }
+          .eyebrow { margin: 0 0 8px; color: var(--clay); font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
+          h1 { margin: 0; font-size: clamp(2.1rem, 5vw, 4rem); letter-spacing: 0; line-height: 1.02; }
+          p { margin: 12px 0 0; color: var(--muted); }
+          .logout {
+            min-height: 42px;
+            border: 0;
+            border-radius: 999px;
+            padding: 0 20px;
+            background: var(--ink);
+            color: #fff;
+            font: inherit;
+            font-weight: 900;
+            cursor: pointer;
+          }
+          .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin: 0 0 20px;
+          }
+          .summary-card {
+            min-height: 112px;
+            display: grid;
+            align-content: center;
+            gap: 8px;
+            border: 1px solid rgba(217, 221, 214, 0.92);
+            border-radius: 8px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: 0 16px 45px rgba(34, 32, 28, 0.08);
+          }
+          .summary-card span { color: var(--muted); font-size: 0.82rem; font-weight: 800; text-transform: uppercase; }
+          .summary-card strong { font-size: clamp(1.28rem, 3vw, 2rem); line-height: 1.05; }
+          .table-shell {
+            overflow: hidden;
+            border: 1px solid rgba(217, 221, 214, 0.9);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: 0 22px 70px rgba(34, 32, 28, 0.10);
+          }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { padding: 16px; border-bottom: 1px solid var(--line); text-align: left; font-size: 0.94rem; vertical-align: middle; }
+          th { background: var(--accent-strong); color: #fff; font-size: 0.78rem; letter-spacing: 0; text-transform: uppercase; }
+          tr:last-child td { border-bottom: 0; }
+          .report-title { display: block; font-weight: 900; }
+          .filename { display: block; max-width: 520px; margin-top: 3px; color: var(--muted); font-size: 0.82rem; overflow-wrap: anywhere; }
+          .download-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            border-radius: 999px;
+            padding: 0 16px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 900;
+            text-decoration: none;
+            white-space: nowrap;
+          }
+          .download-link:hover { background: var(--accent-strong); }
+          .empty-state { display: block; padding: 20px 0; color: var(--muted); text-align: center; }
           @media (max-width: 720px) {
+            main { width: min(100% - 24px, 1120px); padding-top: 26px; }
             .topbar { display: grid; }
+            .logout { width: 100%; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .table-shell { border: 0; background: transparent; box-shadow: none; }
             table, thead, tbody, tr, th, td { display: block; }
             thead { display: none; }
-            tr { border-bottom: 1px solid #d9ddd6; padding: 12px; }
-            td { border: 0; padding: 6px 0; overflow-wrap: anywhere; }
+            tbody { display: grid; gap: 12px; }
+            tr {
+              border: 1px solid var(--line);
+              border-radius: 8px;
+              padding: 14px;
+              background: var(--panel);
+              box-shadow: 0 14px 38px rgba(34, 32, 28, 0.08);
+            }
+            td {
+              display: grid;
+              grid-template-columns: 88px minmax(0, 1fr);
+              gap: 10px;
+              border: 0;
+              padding: 8px 0;
+              overflow-wrap: anywhere;
+            }
+            td::before { content: attr(data-label); color: var(--muted); font-size: 0.78rem; font-weight: 900; text-transform: uppercase; }
+            td:last-child { grid-template-columns: 1fr; }
+            td:last-child::before { display: none; }
+            td[data-label="Arquivo"] { grid-template-columns: 1fr; }
+            .download-link { width: 100%; }
           }
         </style>
       </head>
@@ -578,6 +859,7 @@ app.get("/admin", async (req, res) => {
         <main>
           <div class="topbar">
             <div>
+              <p class="eyebrow">Acesso privado</p>
               <h1>Relatórios internos</h1>
               <p>PDFs gerados automaticamente quando o cliente envia o pré-briefing.</p>
             </div>
@@ -585,17 +867,33 @@ app.get("/admin", async (req, res) => {
               <button class="logout" type="submit">Sair</button>
             </form>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Arquivo</th>
-                <th>Data</th>
-                <th>Tamanho</th>
-                <th>Ação</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
+          <section class="summary-grid" aria-label="Resumo dos relatórios">
+            <div class="summary-card">
+              <span>Total de PDFs</span>
+              <strong>${reports.length}</strong>
+            </div>
+            <div class="summary-card">
+              <span>Último briefing</span>
+              <strong>${escapeHtml(latestReport)}</strong>
+            </div>
+            <div class="summary-card">
+              <span>Armazenamento local</span>
+              <strong>${totalSizeKb} KB</strong>
+            </div>
+          </section>
+          <section class="table-shell" aria-label="Lista de relatórios">
+            <table>
+              <thead>
+                <tr>
+                  <th>Arquivo</th>
+                  <th>Data</th>
+                  <th>Tamanho</th>
+                  <th>Ação</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </section>
         </main>
       </body>
     </html>

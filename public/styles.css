@@ -63,16 +63,25 @@ html {
   right: 0;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 38px;
   border: 1px solid rgba(255, 255, 255, 0.38);
   border-radius: 999px;
-  padding: 0 16px;
+  padding: 0 18px;
   color: rgba(255, 255, 255, 0.88);
   font-size: 0.88rem;
   font-weight: 800;
   text-decoration: none;
   backdrop-filter: blur(14px);
   background: rgba(255, 255, 255, 0.10);
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+  white-space: nowrap;
+}
+
+.admin-link:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
 }
 
 .eyebrow {
@@ -296,6 +305,7 @@ button:disabled {
 
   .admin-link {
     top: 18px;
+    right: 0;
   }
 
   .form-section {
@@ -343,5 +353,13 @@ button:disabled {
 
   h1 {
     font-size: clamp(2.35rem, 14vw, 3.45rem);
+  }
+
+  .admin-link {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: fit-content;
+    margin-bottom: 28px;
   }
 }
