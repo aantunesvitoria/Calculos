@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

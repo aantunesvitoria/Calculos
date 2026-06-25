@@ -55,6 +55,20 @@ Faça commit e push dessa alteração para que o GitHub Pages use o servidor pub
 
 Observação: no plano Free do Render, o serviço pode "dormir" depois de alguns minutos sem acesso e levar cerca de um minuto para acordar na próxima visita.
 
+## Deploy automático
+
+O repositório já tem o GitHub Pages configurado em `.github/workflows/pages.yml` para publicar o conteúdo de `public/` quando houver push em `main`.
+
+Para enviar o deploy do GitHub Pages e do Render com um único comando no Windows:
+
+```powershell
+npm run deploy
+```
+
+Esse script valida que você está no branch `main`, confirma que não há alterações locais sem commit, e faz `git push origin main` para disparar o deploy automático.
+
+> Antes de rodar, certifique-se de que `public/config.js` contém a URL do servidor Render no `serverUrl`.
+
 ## WhatsApp
 
 Por padrão, `WHATSAPP_DRY_RUN=true` apenas mostra a mensagem no terminal. Para envio real, configure:
