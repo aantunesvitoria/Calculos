@@ -1,3 +1,3 @@
 window.APP_CONFIG = {
-  serverUrl: ""
+  serverUrl: "https://pre-briefing-interiores.onrender.com"
 };
