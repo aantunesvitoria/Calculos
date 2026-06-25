@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pré-briefing | Interiores, Obras e Decoração</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <a class="admin-link" href="/admin">Admin</a>
+          <p class="eyebrow">Pré-briefing</p>
+          <h1 id="page-title">Interiores, obras, reformas e decoração</h1>
+          <p>
+            Preencha as informações iniciais para entendermos o momento do seu imóvel,
+            o escopo desejado e as prioridades do projeto.
+          </p>
+          <a class="hero-action" href="#briefing-form">Começar briefing</a>
+        </div>
+      </section>
+
+      <section class="form-section" aria-label="Formulário de pré-briefing">
+        <form id="briefing-form" class="briefing-form" action="javascript:void(0)">
+          <div class="form-heading">
+            <p class="eyebrow">Dados iniciais</p>
+            <h2>Conte sobre o seu projeto</h2>
+          </div>
+
+          <fieldset>
+            <legend>Contato</legend>
+            <div class="field-grid two">
+              <label>
+                Nome completo *
+                <input name="name" type="text" autocomplete="name" required>
+              </label>
+              <label>
+                WhatsApp *
+                <input name="phone" type="tel" autocomplete="tel" required>
+              </label>
+            </div>
+            <label>
+              E-mail
+              <input name="email" type="email" autocomplete="email">
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Imóvel</legend>
+            <div class="field-grid two">
+              <label>
+                Cidade e bairro
+                <input name="location" type="text" autocomplete="address-level2">
+              </label>
+              <label>
+                Tipo de imóvel *
+                <select name="propertyType" required>
+                  <option value="">Selecione</option>
+                  <option value="apartamento">Apartamento</option>
+                  <option value="casa">Casa</option>
+                  <option value="comercial">Comercial</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </label>
+            </div>
+            <div class="field-grid two">
+              <label>
+                Situação atual *
+                <select name="propertyStatus" required>
+                  <option value="">Selecione</option>
+                  <option value="vazio">Vazio</option>
+                  <option value="morando">Morando no local</option>
+                  <option value="obra">Em obra</option>
+                  <option value="compra">Em compra/entrega</option>
+                </select>
+              </label>
+              <label>
+                Área aproximada em m² *
+                <input name="area" type="number" min="1" step="1" required>
+              </label>
+            </div>
+            <label>
+              Quantos ambientes entram no projeto? *
+              <input name="rooms" type="number" min="1" step="1" required>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Projeto</legend>
+            <div class="field-grid two">
+              <label>
+                Escopo desejado *
+                <select name="scope" required>
+                  <option value="">Selecione</option>
+                  <option value="consultoria">Consultoria</option>
+                  <option value="decoracao">Decoração</option>
+                  <option value="reforma">Reforma</option>
+                  <option value="obra_completa">Obra completa</option>
+                </select>
+              </label>
+              <label>
+                Estilo preferido
+                <select name="style">
+                  <option value="">Selecione</option>
+                  <option value="minimalista">Minimalista</option>
+                  <option value="contemporaneo">Contemporâneo</option>
+                  <option value="classico">Clássico</option>
+                  <option value="industrial">Industrial</option>
+                  <option value="escandinavo">Escandinavo</option>
+                  <option value="personalizado">Personalizado</option>
+                </select>
+              </label>
+            </div>
+            <div class="field-grid two">
+              <label>
+                Verba estimada
+                <input name="budget" type="number" min="0" step="100">
+              </label>
+              <label>
+                Prazo desejado em dias
+                <input name="deadlineDays" type="number" min="1" step="1">
+              </label>
+            </div>
+            <label>
+              Prioridade principal
+              <select name="priority">
+                <option value="">Selecione</option>
+                <option value="funcionalidade">Funcionalidade</option>
+                <option value="estetica">Estética</option>
+                <option value="prazo">Prazo</option>
+                <option value="economia">Economia</option>
+                <option value="valorizacao">Valorização do imóvel</option>
+              </select>
+            </label>
+            <label>
+              Conte um pouco sobre o que você imagina
+              <textarea name="description" rows="5"></textarea>
+            </label>
+          </fieldset>
+
+          <div class="actions">
+            <p id="form-status" role="status" aria-live="polite"></p>
+            <button type="submit">Enviar pré-briefing</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
