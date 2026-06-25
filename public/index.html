@@ -38,12 +38,12 @@
               </label>
               <label>
                 WhatsApp *
-                <input name="phone" type="tel" autocomplete="tel" required>
+                <input name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 91234-5678" required>
               </label>
             </div>
             <label>
               E-mail
-              <input name="email" type="email" autocomplete="email">
+              <input name="email" type="email" autocomplete="email" placeholder="seu@email.com">
             </label>
           </fieldset>
 
@@ -116,11 +116,11 @@
             <div class="field-grid two">
               <label>
                 Verba estimada
-                <input name="budget" type="number" min="0" step="100">
+                <input name="budget" type="text" inputmode="decimal" placeholder="R$ 15.000">
               </label>
               <label>
                 Prazo desejado em dias
-                <input name="deadlineDays" type="number" min="1" step="1">
+                <input name="deadlineDays" type="number" min="1" step="1" placeholder="Ex: 45">
               </label>
             </div>
             <label>
@@ -147,6 +147,17 @@
         </form>
       </section>
     </main>
+
+    <div id="dialog-overlay" class="dialog-overlay" aria-hidden="true">
+      <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-message">
+        <h3 id="dialog-title">Notificação</h3>
+        <div id="dialog-message"></div>
+        <div class="dialog-actions">
+          <button type="button" id="dialog-confirm">OK</button>
+          <button type="button" id="dialog-cancel" class="secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
 
     <script src="config.js"></script>
     <script src="app.js"></script>

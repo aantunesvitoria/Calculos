@@ -254,6 +254,7 @@ textarea:focus {
   min-height: 24px;
   margin: 0;
   color: var(--muted);
+  font-size: 0.96rem;
 }
 
 #form-status[data-tone="success"] {
@@ -264,6 +265,72 @@ textarea:focus {
 #form-status[data-tone="error"] {
   color: #a33a2d;
   font-weight: 700;
+}
+
+input.invalid,
+select.invalid,
+textarea.invalid {
+  border-color: #a33a2d;
+  box-shadow: 0 0 0 4px rgba(163, 58, 45, 0.14);
+}
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 20, 19, 0.5);
+  padding: 20px;
+  z-index: 10;
+}
+
+.dialog-overlay.active {
+  display: flex;
+}
+
+.dialog {
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 28px 80px rgba(17, 20, 19, 0.24);
+  padding: 26px 24px 20px;
+  text-align: left;
+}
+
+.dialog h3 {
+  margin: 0 0 14px;
+  font-size: 1.2rem;
+  color: var(--accent-strong);
+}
+
+.dialog p,
+.dialog div {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.dialog-actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dialog-actions button {
+  min-height: 44px;
+  padding: 0 18px;
+}
+
+button.secondary {
+  background: #f4f2ee;
+  color: var(--ink);
+}
+
+button.secondary:hover {
+  background: #e6e3de;
 }
 
 button {
