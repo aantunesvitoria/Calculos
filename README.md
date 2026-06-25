@@ -31,7 +31,7 @@ Este projeto tem duas partes:
 - `public/`: landing page estática, compatível com GitHub Pages.
 - `server.js`: servidor Node responsável por gerar PDFs, WhatsApp e área administrativa.
 
-O GitHub Pages publica apenas a landing page estática a partir da branch `gh-pages`. Para usar envio de briefing, geração de PDF e `/admin`, rode o servidor Node localmente ou publique em uma hospedagem que execute Node.js.
+O GitHub Pages publica apenas a landing page estática por GitHub Actions. Para usar envio de briefing, geração de PDF e `/admin`, rode o servidor Node localmente ou publique em uma hospedagem que execute Node.js.
 
 ## WhatsApp
 
